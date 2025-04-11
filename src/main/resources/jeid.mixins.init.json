@@ -1,0 +1,10 @@
+{	"required":true,
+	"client":[],
+	"compatibilityLevel":"JAVA_8",
+	"injectors":{"maxShiftBy":10},
+	"minVersion":"0.6",
+	"mixins":["JEIDMixinLoader"],
+	"package":"net.fabric.jeid.mixin.init",
+	"refmap":"mixins.jeid.refmap.json",
+	"target":"@env(init)"
+}

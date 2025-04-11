@@ -1,0 +1,216 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+buildscript {
+    repositories {
+        maven { url 'https://maven.minecraftforge.net' }
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://repo.spongepowered.org/repository/maven-public" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.1"
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
+        classpath "org.spongepowered:mixingradle:0.7-SNAPSHOT"
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: 'org.spongepowered.mixin'
+
+def travisBuildNumber = System.getenv("TRAVIS_BUILD_NUMBER")
+def versionSuffix = travisBuildNumber != null ? travisBuildNumber : "SNAPSHOT"
+
+version "1.0.4-$versionSuffix"
+group "org.dimdev.jeid"
+archivesBaseName = "JustEnoughIDs"
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
+minecraft {
+    // The mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   Snapshot are built nightly.
+    // stable_#            Stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not always work.
+    // Simply re-run your setup task after changing the mappings to update your workspace.
+    mappings channel: 'stable', version: '39-1.12'
+
+    accessTransformer = file('src/main/resources/META-INF/jeid_at.cfg')
+
+    // Default run configurations.
+    // These can be tweaked, removed, or duplicated as needed.
+    runs {
+        client {
+
+            jvmArg "-Dfml.coreMods.load=org.dimdev.jeid.JEIDLoadingPlugin"
+            jvmArg "-Dmixin.hotSwap=true"
+            jvmArg "-Dmixin.checks.interfaces=true"
+
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+
+            jvmArg "-Dfml.coreMods.load=org.dimdev.jeid.JEIDLoadingPlugin"
+            jvmArg "-Dmixin.hotSwap=true"
+            jvmArg "-Dmixin.checks.interfaces=true"
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+configurations {
+    compileJar {
+        implementation.extendsFrom(compileJar)
+    }
+}
+
+repositories {
+    maven { url "https://repo.spongepowered.org/maven" }
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+        metadataSources {
+            artifact()
+        }
+    }
+}
+
+dependencies {
+    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
+    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
+    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
+
+    annotationProcessor("org.spongepowered:mixin:0.8.3:processor")
+    compileJar("org.spongepowered:mixin:0.8.3") {
+        exclude module: "asm-commons"
+        exclude module: "asm-tree"
+        exclude module: "launchwrapper"
+        exclude module: "guava"
+        exclude module: "log4j-core"
+        exclude module: "gson"
+        exclude module: "commons-io"
+    }
+    compileOnly fg.deobf( "curse.maven:BiomesOPlenty-220318:2842510" )
+    compileOnly fg.deobf( "curse.maven:twilightforest-227639:3051450" )
+    compileOnly fg.deobf( "curse.maven:Thaumcraft-223628:2629023" )
+    compileOnly fg.deobf( "curse.maven:AbyssalCraft-53686:3425234" )
+    compileOnly fg.deobf( "curse.maven:Creeping+Nether-268104:2655432" )
+    compileOnly fg.deobf( "curse.maven:GeographiCraft-76544:2497541" )
+    compileOnly fg.deobf( "curse.maven:mystcraft-224599:2958490" )
+    compileOnly fg.deobf( "curse.maven:HammerCore-247401:3366814" )
+    compileOnly fg.deobf( "curse.maven:AdvancedRocketry-236542:3015079" )
+    compileOnly fg.deobf( "curse.maven:LibVulpes-236541:3434864" )
+    compileOnly fg.deobf( "curse.maven:worldedit-225608:2941712" )
+    compileOnly fg.deobf( "curse.maven:journeymap-32274:2916002" )
+    compileOnly fg.deobf( "curse.maven:Bookshelf-228525:2836960" )
+    compileOnly fg.deobf( "curse.maven:CyclopsCore-232758:3159497" )
+    compileOnly fg.deobf( "curse.maven:extrautils2-225561:2678374" )
+    compileOnly fg.deobf( "curse.maven:TheBetweenlands-243363:3248202" )
+    compileOnly fg.deobf( "curse.maven:TofuCraftReload-317469:3115668" )
+    compileOnly fg.deobf( "curse.maven:tropicraft-254794:2713918" )
+    compileOnly fg.deobf( "curse.maven:gaiadimension-302529:2724738" )
+    compileOnly fg.deobf( "curse.maven:BiomeTweaker-228895:3112142" )
+    compileOnly fg.deobf( "curse.maven:baubles-227083:2518667" )
+    compileOnly fg.deobf( "curse.maven:Patchouli-306770:3162874" )
+    compileOnly fg.deobf( "curse.maven:bewitchment-285439:3256343" )
+}
+
+// Example for how to get properties into the manifest for reading by the runtime..
+jar {
+    manifest {
+        attributes([
+                "FMLCorePluginContainsFMLMod": "true",
+                "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+                "FMLCorePlugin": "org.dimdev.jeid.JEIDLoadingPlugin",
+                "ForceLoadAsMod": "true",
+                "FMLAT": "jeid_at.cfg"
+        ])
+    }
+}
+
+// Example configuration to allow publishing using the maven-publish task
+// This is the preferred method to reobfuscate your jar file
+jar.finalizedBy('reobfJar')
+// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
+//publish.dependsOn('reobfJar')
+
+java {
+    withSourcesJar()
+}
+
+processResources {
+    duplicatesStrategy(DuplicatesStrategy.INCLUDE)
+    from (sourceSets.main.resources.srcDirs) {
+        include("mcmod.info")
+        expand("version": version)
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
+
+    }
+}
+
+mixin {
+    add sourceSets.main, "mixins.jeid.refmap.json"
+    disableAnnotationProcessorCheck()
+}
+
+shadowJar {
+    archiveClassifier.set(null)
+    configurations = [project.configurations.compileJar]
+}
+
+task thinShadowJar(type: ShadowJar) {
+    archiveClassifier.set("thin")
+    configurations = [project.configurations.compileJar]
+    relocators = shadowJar.relocators
+
+    dependencies {
+        exclude(dependency("org.spongepowered:mixin"))
+    }
+
+    manifest {
+        inheritFrom jar.manifest
+    }
+
+    from sourceSets.main.output
+}
+
+artifacts {
+    archives shadowJar
+    archives sourcesJar
+    archives thinShadowJar
+}
+
+reobf {
+    shadowJar {}
+    thinShadowJar {}
+}

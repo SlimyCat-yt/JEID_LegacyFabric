@@ -1,0 +1,26 @@
+{	"required":true,
+	"compatibilityLevel":"JAVA_17",
+	"injectors":{"maxShiftBy":10},
+	"minVersion":"0.8",
+	"mixins":[
+	  "MixinGameData",
+	  "MixinStatList",
+	  "MixinBlockStateContainer",
+	  "MixinAnvilChunkLoader",
+	  "MixinBlock",
+	  "MixinChunk",
+	  "MixinSPacketChunkData",
+	  "MixinGenLayerVoronoiZoom",
+	  "MixinChunkPrimer",
+	  "MixinChunkProviderServer",
+	  "MixinWorldInfo",
+	  "MixinEnchantmentHelper",
+	  "MixinItemEnchantedBook"
+	],"client":[
+		"client.MixinChunk",
+		"client.MixinRenderGlobal",
+  		"client.MixinWorldSummary"
+	],
+	"package":"net.fabric.jeid.mixin.core",
+	"server":[]
+}
